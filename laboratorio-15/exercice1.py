@@ -4,96 +4,101 @@ def record_test(test_name, condition):
     emoji = "✅" if condition else "❌"
     test_results.append(f"{emoji} {test_name}")
 
-class MinHeap:
+class Graph:
     def __init__(self):
         """
-        Initialize empty heap storage using a list.
+        Initialize empty adjacency list representation of graph.
         
-        Time Complexity: O(1)
-        Space Complexity: O(1)
+        Time Complexity: O(1) - constant time initialization
+        Space Complexity: O(1) - only creates empty dictionary
         """
-        # Use list to store heap elements with index 0 as root
-        self.heap = []
+        # Initialize empty adjacency list using dictionary
+        # Key: vertex name, Value: list of adjacent vertices
+        self.adjacency_list = {}
     
-    def is_empty(self):
+    def get_vertices(self):
         """
-        Return True if heap has no elements.
+        Return list of all vertices in the graph.
         
-        Time Complexity: O(1)
-        Space Complexity: O(1)
+        Time Complexity: O(V) where V is number of vertices
+        Space Complexity: O(V) for creating new list
+        
+        Returns:
+            list: All vertex names in the graph
         """
-        # Check if the heap list is empty
-        return len(self.heap) == 0
+        # Extract all keys (vertex names) from adjacency list
+        # Convert to list for consistent return type
+        return list(self.adjacency_list.keys())
     
-    def size(self):
+    def get_vertex_count(self):
         """
-        Return number of elements in heap.
+        Return the number of vertices in the graph.
         
-        Time Complexity: O(1)
-        Space Complexity: O(1)
+        Time Complexity: O(1) - dictionary length is cached
+        Space Complexity: O(1) - no additional space needed
+        
+        Returns:
+            int: Number of vertices in graph
         """
-        # Return the length of the heap list
-        return len(self.heap)
+        # Dictionary length gives us vertex count directly
+        return len(self.adjacency_list)
     
-    def peek(self):
+    def has_vertex(self, vertex):
         """
-        Return minimum element without removing it.
-        In a min-heap, the minimum element is always at the root (index 0).
+        Check if a vertex exists in the graph.
         
-        Time Complexity: O(1)
-        Space Complexity: O(1)
+        Time Complexity: O(1) - dictionary key lookup is average O(1)
+        Space Complexity: O(1) - no additional space needed
+        
+        Args:
+            vertex: The vertex to check for existence
+            
+        Returns:
+            bool: True if vertex exists, False otherwise
         """
-        # Handle edge case: empty heap
-        if self.is_empty():
-            return None
-        
-        # In min-heap, root (index 0) contains minimum element
-        return self.heap[0]
+        # Use 'in' operator for dictionary key existence check
+        # Handles empty graph case automatically (returns False)
+        return vertex in self.adjacency_list
 
 def test_1_1():
-    # 1.1.1 Empty heap initialization
-    heap = MinHeap()
-    record_test("1.1.1 Empty heap initialization", heap.is_empty() == True)
+    """Test suite for basic graph foundation functionality."""
     
-    # 1.1.2 Size tracking
-    heap.heap = [1, 3, 2]  # Simulate adding elements
-    record_test("1.1.2 Size tracking", heap.size() == 3)
+    # 1.1.1 Empty graph initialization
+    graph = Graph()
+    record_test("1.1.1 Empty graph initialization", graph.get_vertex_count() == 0)
     
-    # 1.1.3 Peek functionality
-    record_test("1.1.3 Peek functionality", heap.peek() == 1)
+    # 1.1.2 Vertex counting
+    graph.adjacency_list = {"Lima": [], "Cusco": []}  # Simulate adding vertices
+    record_test("1.1.2 Vertex counting", graph.get_vertex_count() == 2)
     
-    # 1.1.4 Empty heap edge case
-    empty_heap = MinHeap()
-    record_test("1.1.4 Empty heap edge case", empty_heap.peek() is None)
+    # 1.1.3 Vertex existence check
+    record_test("1.1.3 Vertex existence check", graph.has_vertex("Lima") == True)
+    
+    # 1.1.4 Empty graph edge case
+    empty_graph = Graph()
+    record_test("1.1.4 Empty graph edge case", empty_graph.has_vertex("Lima") == False)
     
     # 1.1.5 Type validation
-    record_test("1.1.5 Type validation", isinstance(heap.is_empty(), bool))
+    record_test("1.1.5 Type validation", isinstance(graph.get_vertices(), list))
 
 # 🚀 Run tests
 test_1_1()
 
 # 📋 Summary
-print("TEST RESULTS:")
-print("=" * 50)
+print("=== TEST RESULTS ===")
 for r in test_results:
     print(r)
 
-print(f"\nTotal: {len([r for r in test_results if '✅' in r])}/{len(test_results)} tests passed")
+# 📊 Additional demonstration
+print("\n=== DEMONSTRATION ===")
+demo_graph = Graph()
+print(f"Empty graph vertices: {demo_graph.get_vertices()}")
+print(f"Empty graph count: {demo_graph.get_vertex_count()}")
+print(f"Has vertex 'A': {demo_graph.has_vertex('A')}")
 
-# Demonstrate the implemented functionality
-print("\n" + "=" * 50)
-print("DEMONSTRATION:")
-print("=" * 50)
-
-# Create and test heap
-demo_heap = MinHeap()
-print(f"New heap is empty: {demo_heap.is_empty()}")
-print(f"New heap size: {demo_heap.size()}")
-print(f"Peek at empty heap: {demo_heap.peek()}")
-
-# Simulate adding elements to demonstrate peek
-demo_heap.heap = [5, 10, 15, 20, 25]
-print(f"\nAfter adding elements [5, 10, 15, 20, 25]:")
-print(f"Heap is empty: {demo_heap.is_empty()}")
-print(f"Heap size: {demo_heap.size()}")
-print(f"Minimum element (peek): {demo_heap.peek()}")
+# Simulate adding vertices for demonstration
+demo_graph.adjacency_list = {"A": [], "B": [], "C": []}
+print(f"\nAfter adding vertices: {demo_graph.get_vertices()}")
+print(f"Vertex count: {demo_graph.get_vertex_count()}")
+print(f"Has vertex 'B': {demo_graph.has_vertex('B')}")
+print(f"Has vertex 'D': {demo_graph.has_vertex('D')}")

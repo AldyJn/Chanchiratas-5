@@ -4,60 +4,131 @@ def record_test(test_name, condition):
     emoji = "✅" if condition else "❌"
     test_results.append(f"{emoji} {test_name}")
 
-class MinHeap:
+class Graph:
     def __init__(self):
-        self.heap = []
+        """
+        Initialize empty adjacency list representation of graph.
+        
+        Time Complexity: O(1) - constant time initialization
+        Space Complexity: O(1) - only creates empty dictionary
+        """
+        self.adjacency_list = {}
+    
+    def add_vertex(self, vertex):
+        """
+        Add a vertex to the graph with an empty adjacency list.
+        Prevents duplicate vertices by checking existence first.
+        
+        Time Complexity: O(1) average case - dictionary key lookup and insertion
+        Space Complexity: O(1) - adds one key-value pair to dictionary
+        
+        Args:
+            vertex: The vertex identifier to add to the graph
+            
+        Returns:
+            None - modifies graph in place
+        """
+        # Step 1: Check if vertex already exists to prevent duplicates
+        # This is crucial for maintaining graph integrity and preventing
+        # accidental overwrites of existing adjacency lists
+        if vertex not in self.adjacency_list:
+            # Step 2: Add vertex with empty adjacency list
+            # Empty list represents an isolated vertex with no connections
+            # This preserves the adjacency list structure for future edge additions
+            self.adjacency_list[vertex] = []
+        
+        # Note: If vertex already exists, we do nothing (duplicate prevention)
+        # This ensures idempotent behavior - adding same vertex multiple times
+        # has the same effect as adding it once
+    
+    def get_vertices(self):
+        """
+        Return list of all vertices in the graph.
+        
+        Time Complexity: O(V) where V is number of vertices
+        Space Complexity: O(V) for creating new list
+        """
+        return list(self.adjacency_list.keys())
+    
+    def get_vertex_count(self):
+        """
+        Return the number of vertices in the graph.
+        
+        Time Complexity: O(1) - dictionary length is cached
+        Space Complexity: O(1) - no additional space needed
+        """
+        return len(self.adjacency_list)
+    
+    def has_vertex(self, vertex):
+        """
+        Check if a vertex exists in the graph.
+        
+        Time Complexity: O(1) average case - dictionary key lookup
+        Space Complexity: O(1) - no additional space needed
+        """
+        return vertex in self.adjacency_list
 
-    # Devuelve el índice del nodo padre, o None si está en la raíz o el índice es inválido
-    def _parent_index(self, index):
-        if index <= 0 or index >= len(self.heap):
-            return None
-        return (index - 1) // 2
-
-    # Devuelve el índice del hijo izquierdo
-    def _left_child_index(self, index):
-        return 2 * index + 1
-
-    # Devuelve el índice del hijo derecho
-    def _right_child_index(self, index):
-        return 2 * index + 2
-
-    # Verifica si el nodo tiene hijo izquierdo dentro de los límites del arreglo
-    def _has_left_child(self, index):
-        return self._left_child_index(index) < len(self.heap)
-
-    # Verifica si el nodo tiene hijo derecho dentro de los límites del arreglo
-    def _has_right_child(self, index):
-        return self._right_child_index(index) < len(self.heap)
-
-# Función de prueba que evalúa todos los casos del desafío
 def test_1_2():
-    heap = MinHeap()
-    heap.heap = [1, 3, 2, 7, 4, 5, 8]  # Heap de ejemplo
+    """Test suite for vertex addition functionality."""
+    graph = Graph()
+    
+    # 1.2.1 Single vertex addition
+    graph.add_vertex("Lima")
+    record_test("1.2.1 Single vertex addition", graph.has_vertex("Lima"))
+    
+    # 1.2.2 Multiple vertex addition
+    graph.add_vertex("Cusco")
+    graph.add_vertex("Arequipa")
+    record_test("1.2.2 Multiple vertex addition", graph.get_vertex_count() == 3)
+    
+    # 1.2.3 Duplicate prevention
+    initial_count = graph.get_vertex_count()
+    graph.add_vertex("Lima")  # Adding duplicate
+    record_test("1.2.3 Duplicate prevention", graph.get_vertex_count() == initial_count)
+    
+    # 1.2.4 Vertex isolation
+    lima_neighbors = graph.adjacency_list.get("Lima", [])
+    record_test("1.2.4 Vertex isolation", len(lima_neighbors) == 0)
+    
+    # 1.2.5 Graph size tracking
+    graph.add_vertex("Trujillo")
+    record_test("1.2.5 Graph size tracking", "Trujillo" in graph.get_vertices())
 
-    # 1.2.1: Cálculo de padre
-    record_test("1.2.1 Parent calculation", heap._parent_index(4) == 1)
-
-    # 1.2.2: Cálculo de hijos izquierdo y derecho
-    left_correct = heap._left_child_index(1) == 3
-    right_correct = heap._right_child_index(1) == 4
-    record_test("1.2.2 Children calculation", left_correct and right_correct)
-
-    # 1.2.3: Caso borde del nodo raíz (índice 0 no tiene padre)
-    parent_root = heap._parent_index(0)
-    record_test("1.2.3 Root node edge case", parent_root == -1 or parent_root is None)
-
-    # 1.2.4: Validación de límites: índice 1 tiene ambos hijos
-    has_children = heap._has_left_child(1) and heap._has_right_child(1)
-    record_test("1.2.4 Boundary validation", has_children)  
-
-    # 1.2.5: Manejo de índice inválido: el nodo en el índice 6 no tiene hijos
-    no_children = not heap._has_left_child(6) and not heap._has_right_child(6)
-    record_test("1.2.5 Invalid index handling", no_children)
-
-# 🚀 Ejecutar pruebas
+# 🚀 Run tests
 test_1_2()
 
-# 📋 Imprimir resultados
-for result in test_results:
-    print(result)
+# 📋 Summary
+print("=== TEST RESULTS ===")
+for r in test_results:
+    print(r)
+
+# 📊 Additional demonstration
+print("\n=== VERTEX ADDITION DEMONSTRATION ===")
+demo_graph = Graph()
+
+print("Step 1: Empty graph")
+print(f"Vertices: {demo_graph.get_vertices()}")
+print(f"Count: {demo_graph.get_vertex_count()}")
+
+print("\nStep 2: Adding first vertex 'A'")
+demo_graph.add_vertex("A")
+print(f"Vertices: {demo_graph.get_vertices()}")
+print(f"Count: {demo_graph.get_vertex_count()}")
+print(f"A's neighbors: {demo_graph.adjacency_list['A']}")
+
+print("\nStep 3: Adding multiple vertices")
+demo_graph.add_vertex("B")
+demo_graph.add_vertex("C")
+demo_graph.add_vertex("D")
+print(f"Vertices: {demo_graph.get_vertices()}")
+print(f"Count: {demo_graph.get_vertex_count()}")
+
+print("\nStep 4: Attempting to add duplicate 'A'")
+print(f"Count before: {demo_graph.get_vertex_count()}")
+demo_graph.add_vertex("A")  # Should not increase count
+print(f"Count after: {demo_graph.get_vertex_count()}")
+print(f"A's neighbors unchanged: {demo_graph.adjacency_list['A']}")
+
+print("\nStep 5: Final adjacency list structure")
+for vertex, neighbors in demo_graph.adjacency_list.items():
+    print(f"'{vertex}': {neighbors}")

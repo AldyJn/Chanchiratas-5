@@ -1,86 +1,113 @@
+# 🧪 Lista para resultados de prueba
 test_results = []
 
 def record_test(test_name, condition):
     emoji = "✅" if condition else "❌"
     test_results.append(f"{emoji} {test_name}")
 
-class MaxHeap:
+# 📦 Clase del Grafo con análisis avanzado
+class Graph:
     def __init__(self):
-        self.heap = []
+        self.adjacency_list = {}
 
-    def insert(self, value):
-        self.heap.append(value)
-        self._heapify_up(len(self.heap) - 1)
+    def add_vertex(self, vertex):
+        if vertex not in self.adjacency_list:
+            self.adjacency_list[vertex] = []
 
-    def delete_max(self):
-        if not self.heap:
-            return None
-        if len(self.heap) == 1:
-            return self.heap.pop()
-        max_val = self.heap[0]
-        self.heap[0] = self.heap.pop()
-        self._heapify_down(0)
-        return max_val
+    def add_edge(self, vertex1, vertex2):
+        self.add_vertex(vertex1)
+        self.add_vertex(vertex2)
+        if vertex2 not in self.adjacency_list[vertex1]:
+            self.adjacency_list[vertex1].append(vertex2)
+        if vertex1 not in self.adjacency_list[vertex2]:
+            self.adjacency_list[vertex2].append(vertex1)
 
-    def build_heap(self, array):
-        self.heap = array[:]
-        for i in range(len(self.heap) // 2 - 1, -1, -1):
-            self._heapify_down(i)
+    def get_degree(self, vertex):
+        # Retorna el número de conexiones del vértice
+        if vertex in self.adjacency_list:
+            return len(self.adjacency_list[vertex])
+        return 0  # o también puede usarse None
 
-    def _heapify_up(self, index):
-        while index > 0:
-            parent = (index - 1) // 2
-            if self.heap[index] <= self.heap[parent]:
-                break
-            self.heap[index], self.heap[parent] = self.heap[parent], self.heap[index]
-            index = parent
+    def find_all_paths(self, start_vertex, end_vertex, max_length=None):
+        # Encuentra todos los caminos posibles entre start y end usando DFS
 
-    def _heapify_down(self, index):
-        while 2 * index + 1 < len(self.heap):
-            larger_child_index = 2 * index + 1
-            right_index = 2 * index + 2
+        # Si alguno no existe, no hay caminos
+        if start_vertex not in self.adjacency_list or end_vertex not in self.adjacency_list:
+            return []
 
-            if right_index < len(self.heap) and self.heap[right_index] > self.heap[larger_child_index]:
-                larger_child_index = right_index
+        paths = []
 
-            if self.heap[index] >= self.heap[larger_child_index]:
-                break
+        def dfs(current, end, path):
+            # Si la longitud supera el máximo, se detiene
+            if max_length is not None and len(path) > max_length:
+                return
+            if current == end:
+                paths.append(path)
+                return
+            for neighbor in self.adjacency_list.get(current, []):
+                if neighbor not in path:
+                    dfs(neighbor, end, path + [neighbor])
 
-            self.heap[index], self.heap[larger_child_index] = self.heap[larger_child_index], self.heap[index]
-            index = larger_child_index
+        dfs(start_vertex, end_vertex, [start_vertex])
+        return paths
 
+    def get_connected_components(self):
+        # Retorna lista de componentes conectados (cada uno es una lista de vértices)
+        visited = set()
+        components = []
+
+        for vertex in self.adjacency_list:
+            if vertex not in visited:
+                component = []
+                queue = [vertex]
+                visited.add(vertex)
+                while queue:
+                    current = queue.pop(0)
+                    component.append(current)
+                    for neighbor in self.adjacency_list[current]:
+                        if neighbor not in visited:
+                            visited.add(neighbor)
+                            queue.append(neighbor)
+                components.append(component)
+
+        return components
+
+# 🚀 Función de prueba completa
 def test_1_5():
-    heap = MaxHeap()
+    graph = Graph()
 
-    # 1.5.1 MaxHeap insertion
-    heap.insert(3)
-    heap.insert(1)
-    heap.insert(5)
-    record_test("1.5.1 MaxHeap insertion", heap.heap[0] == 5)
+    # Crear grafo de prueba
+    graph.add_edge("Lima", "Cusco")
+    graph.add_edge("Lima", "Arequipa")
+    graph.add_edge("Cusco", "Arequipa")
+    graph.add_edge("Trujillo", "Piura")  # Componente separado
 
-    # 1.5.2 MaxHeap deletion
-    max_val = heap.delete_max()
-    record_test("1.5.2 MaxHeap deletion", max_val == 5)
+    # 1.5.1 Grado del vértice
+    lima_degree = graph.get_degree("Lima")
+    record_test("1.5.1 Degree calculation", lima_degree == 2)
 
-    # 1.5.3 Build heap from array
-    heap.build_heap([3, 1, 4, 1, 5, 9, 2])
-    record_test("1.5.3 Build heap from array", heap.heap[0] == max(heap.heap))
+    # 1.5.2 Encontrar múltiples caminos
+    paths = graph.find_all_paths("Lima", "Arequipa", max_length=3)
+    has_multiple_paths = len(paths) >= 2
+    record_test("1.5.2 Multiple paths finding", has_multiple_paths)
 
-    # 1.5.4 Heap property verification
-    valid_max_heap = all(
-        (heap.heap[i] >= heap.heap[2 * i + 1] if 2 * i + 1 < len(heap.heap) else True) and
-        (heap.heap[i] >= heap.heap[2 * i + 2] if 2 * i + 2 < len(heap.heap) else True)
-        for i in range(len(heap.heap) // 2)
-    )
-    record_test("1.5.4 Heap property verification", valid_max_heap)
+    # 1.5.3 Componentes conectados
+    components = graph.get_connected_components()
+    has_two_components = len(components) == 2
+    record_test("1.5.3 Connected components", has_two_components)
 
-    # 1.5.5 Empty array handling
-    heap.build_heap([])
-    record_test("1.5.5 Empty array handling", len(heap.heap) == 0)
+    # 1.5.4 Análisis de grafo vacío
+    empty_graph = Graph()
+    empty_components = empty_graph.get_connected_components()
+    record_test("1.5.4 Empty graph analysis", empty_components == [])
 
-# 🚀 Run tests
+    # 1.5.5 Manejo de vértices inexistentes
+    degree = graph.get_degree("NonExistent")
+    record_test("1.5.5 Non-existent vertex handling", degree == 0)
+
+# 🧪 Ejecutar pruebas
 test_1_5()
 
-# 📋 Summary
+# 📋 Mostrar resultados
 for r in test_results:
     print(r)
